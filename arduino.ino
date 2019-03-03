@@ -21,6 +21,10 @@ LegoRC lego(pinIrLed, 50);
 // to read: LightSensor.read();
 MeLightSensor LightSensor(12);
 
+// Servo Motor
+Servo servoArm;
+MePort portArm(10);
+
 int leftSpeed = 0;
 int rightSpeed = 0;
 int leftAskedSpeed = 0;
@@ -77,6 +81,8 @@ void setup() {
   Ring.setpin(44);
   delay(2);
   color(0, 0, 0);
+  servoArm.attach(portArm.pin1());
+  servoArm.write(0);
 //  delay(500);
 }
 
@@ -155,6 +161,8 @@ void handleSerial() {
           Gyro.fast_update();
           Serial.print("G: ");
           Serial.println(Gyro.getAngleZ());
+      } else if (commandName == "ARM") {
+        servoArm.write(commandParam1);
       } else if (commandName == "ELEC") {
           lego.sendCommand(1, 4, 9);
           Serial.println("L: OK");
