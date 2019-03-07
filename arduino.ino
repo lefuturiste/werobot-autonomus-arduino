@@ -23,7 +23,7 @@ MeLightSensor LightSensor(12);
 
 // Servo Motor
 Servo servoArm;
-MePort portArm(10);
+MePort port(7);
 
 int leftSpeed = 0;
 int rightSpeed = 0;
@@ -76,13 +76,14 @@ void triggerElectron() {
 }
 
 void setup() {
+  port.dWrite2(true);
   Serial.begin(9600); 
   Gyro.begin();
   Ring.setpin(44);
+  servoArm.attach(port.pin1());
+  servoArm.write(0);
   delay(2);
   color(0, 0, 0);
-  servoArm.attach(portArm.pin1());
-  servoArm.write(0);
 //  delay(500);
 }
 
@@ -92,7 +93,6 @@ void loop() {
 }
 
 void handleSerial() {
-  
     command = Serial.readStringUntil('\n');
     if (command != ""){
 //      Serial.println("--");
@@ -154,6 +154,10 @@ void handleSerial() {
       } else if (commandName == "ISCOVER") {
           Serial.print("L: ");
           Serial.println(isCover() ? "true" : "false");
+      } else if (commandName == "ALARM") {
+          port.dWrite2(commandParam1 == 1 ? false : true);
+          Serial.print("L: ");
+          Serial.println("ALARM ");
       } else if (commandName == "RGYRO") {
           Gyro.begin();
           Gyro.fast_update();
@@ -162,10 +166,9 @@ void handleSerial() {
           Serial.print("G: ");
           Serial.println(Gyro.getAngleZ());
       } else if (commandName == "ARM") {
-        servoArm.write(commandParam1);
+          servoArm.write(commandParam1);
       } else if (commandName == "ELEC") {
-          lego.sendCommand(1, 4, 9);
-          Serial.println("L: OK");
+          triggerElectron();
       } else if (commandName == "PING") {
           Serial.println("L: pong!");
       } else {
@@ -180,4 +183,3 @@ void handleSerial() {
       commandParam4 = 0;
     }
 }
-
